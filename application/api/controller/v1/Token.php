@@ -13,6 +13,7 @@ use app\api\model\AdminT;
 use app\api\model\TestT;
 use app\api\service\AdminToken;
 use app\api\service\UserInfoService;
+use app\api\service\UserToken;
 use app\api\service\WxTemplate;
 use app\api\validate\TokenGet;
 use app\lib\exception\SuccessMessage;
@@ -27,7 +28,7 @@ use think\facade\Session;
 class Token extends Controller
 {
     /**
-     * @api {GET} /api/v1/token/admin  CMS获取登陆token
+     * @api {GET} /api/v1/token/admin  1-CMS获取登陆token
      * @apiGroup  PC
      * @apiVersion 1.0.1
      * @apiDescription  后台用户登录
@@ -59,7 +60,7 @@ class Token extends Controller
     }
 
     /**
-     * @api {GET} /api/v1/token/loginOut  CMS退出登陆
+     * @api {GET} /api/v1/token/loginOut  2-CMS退出登陆
      * @apiGroup  PC
      * @apiVersion 1.0.1
      * @apiDescription CMS退出当前账号登陆。
@@ -77,6 +78,35 @@ class Token extends Controller
         $token = \think\facade\Request::header('token');
         Cache::rm($token);
         return json(new SuccessMessage());
+    }
+
+    /**
+     * @api {GET} /api/v1/token/user  3-小程序端获取登录token
+     * @apiGroup  MINI
+     * @apiVersion 1.0.1
+     * @apiDescription  微信用户登录获取token。
+     * @apiExample {get}  请求样例:
+     * http://mengant.cn/api/v1/token/user?code=mdksk
+     * @apiParam (请求参数说明) {String} code    小程序code
+     *
+     * @apiSuccessExample {json} 返回样例:
+     *{"token":"f4ad56e55cad93833180186f22586a08","type":1,"shop_id":1}
+     * @apiSuccess (返回参数说明) {Sting} token 口令令牌，每次请求接口需要传入，有效期 2 hours
+     * @apiSuccess (返回参数说明) {int} type 数据库是否缓存小程序用户信息
+     * type=1时，表示已缓存
+     * type=2 表示没有缓存数据，需要请求userInfo接口
+     * @param string $code
+     * @return \think\response\Json
+     * @throws \app\lib\exception\TokenException
+     * @throws \app\lib\exception\WeChatException
+     * @throws \think\Exception
+     */
+    public function getUserToken($code = '')
+    {
+        $ut = new UserToken($code);
+        $token = $ut->get();
+        return json($token);
+
     }
 
 }
