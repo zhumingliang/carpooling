@@ -55,9 +55,16 @@ class Events
      */
     public static function onMessage($client_id, $message)
     {
+        $info = json_decode($message);
+        $u_id = $info->u_id;
+        self::saveBind($client_id, $u_id);
 
-        Gateway::sendToAll("$client_id said $message\r\n");
 
+    }
+
+
+    private static function saveBind($client_id, $u_id)
+    {
         $db = new \Workerman\MySQL\Connection2('55a32a9887e03.gz.cdb.myqcloud.com',
             '16273', 'cdb_outerroot', 'Libo1234', 'carpooling');
 
@@ -66,32 +73,10 @@ class Events
             ->cols(array(
                 'client_id' => $client_id
             ))
-            ->where('id=' . 1)
+            ->where('id=' . $u_id)
             ->query();
 
         Gateway::sendToAll($res);
-
-    }
-
-
-    private static function saveBind($client_id, $u_id)
-    {
-        $db = new \Workerman\MySQL\Connection('55a32a9887e03.gz.cdb.myqcloud.com',
-            '16273', 'cdb_outerroot', 'Libo1234', 'carpooling');
-
-        //修改状态
-        $res = $db->update('car_user_t')
-            ->cols(array(
-                'client_id' => $client_id
-            ))
-            ->where('id=' . 1)
-            ->query();
-        return $res;
-        /*   $db->insert('car_log_t')->cols(array(
-               'create_time' => date("Y-m-d H:i:s", time()),
-               'update_time' => date("Y-m-d H:i:s", time()),
-               'msg' => "client_id" . $client_id . "   u_id:" . $u_id,
-           ))->query();*/
     }
 
     /**
