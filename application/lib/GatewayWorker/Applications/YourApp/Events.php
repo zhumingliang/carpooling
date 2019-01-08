@@ -55,13 +55,25 @@ class Events
     {
         try {
 
-            Gateway::sendToAll("a");
+            $db = new \Workerman\MySQL\Connection('55a32a9887e03.gz.cdb.myqcloud.com',
+                '16273', 'cdb_outerroot', 'Libo1234', 'carpooling');
+
+            //修改状态
+            $res= $db->update('car_user_t')
+                ->cols(array(
+                    'client_id' => $client_id
+                ))
+                ->where('id=' . 1)
+                ->query();
+            return$res;
+
+         /*   Gateway::sendToAll("a");
 
             // 向所有人发送
             //接收客户端发送用户的u_id信息，并进行保存
             $u_id = $message;
             $res = self::saveBind($client_id, $u_id);
-            Gateway::sendToAll($res);
+            Gateway::sendToAll($res);*/
 
         } catch (Exception $e) {
             $info = $e->getMessage();
