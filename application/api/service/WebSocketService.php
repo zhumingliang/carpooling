@@ -34,6 +34,7 @@ class WebSocketService
     private static function checkClientIdOnline($client_id)
     {
         $online = Gateway::isOnline($client_id);
+        echo $online;
         if ($online) {
             return $client_id;
         }
