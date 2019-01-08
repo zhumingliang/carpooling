@@ -22,6 +22,8 @@
 
 use \GatewayWorker\Lib\Gateway;
 
+require_once "mysql/src/Connection.php";
+
 /**
  * 主逻辑
  * 主要是处理 onConnect onMessage onClose 三个方法
@@ -54,19 +56,20 @@ class Events
     public static function onMessage($client_id, $message)
     {
 
-            Gateway::sendToAll("$client_id said $message\r\n");
+        Gateway::sendToAll("$client_id said $message\r\n");
 
-            $db = new \Workerman\MySQL\Connection('55a32a9887e03.gz.cdb.myqcloud.com',
-                '16273', 'cdb_outerroot', 'Libo1234', 'carpooling');
+        $db = new \Workerman\MySQL\Connection2('55a32a9887e03.gz.cdb.myqcloud.com',
+            '16273', 'cdb_outerroot', 'Libo1234', 'carpooling');
 
-            //修改状态
-            $res = $db->update('car_user_t')
-                ->cols(array(
-                    'client_id' => $client_id
-                ))
-                ->where('id=' . 1)
-                ->query();
-            Gateway::sendToAll($res);
+        //修改状态
+        $res = $db->update('car_user_t')
+            ->cols(array(
+                'client_id' => $client_id
+            ))
+            ->where('id=' . 1)
+            ->query();
+
+        Gateway::sendToAll($res);
 
     }
 
