@@ -20,6 +20,15 @@ class OrderValidate extends BaseValidate
         'dis_latitude' => 'require|isNotEmpty',
         'count' => 'require|in:1,2',
         'female' => 'require|in:1,2',
+        'o_id' => 'require',
+        'select_o_id' => 'require',
+        'select_u_id' => 'require',
+    ];
+    protected $scene = [
+        'save' => ['current_location', 'destination', 'current_longitude',
+            'current_latitude', 'dis_longitude', 'dis_latitude', 'count', 'female'],
+        'circle_list_mini' => ['province', 'city', 'area', 'page', 'size', 'c_id'],
+        'select' => ['o_id', 'select_o_id', 'select_u_id'],
     ];
 
 }

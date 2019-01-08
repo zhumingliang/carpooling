@@ -34,4 +34,21 @@ class MatchingT extends Model
 
     }
 
+    /**
+     * 获取有效订单数量：1：匹配成功；2 ：匹配中，一分钟内
+     * @param $o_id
+     * @return float|string
+     */
+    public static function getEffect($o_id)
+    {
+        $limit_time = addTime(1, date("Y-m-d H:i:s"), "minute");
+        $sql = "(state =2) OR (state = 1 AND create_time > " . $limit_time . ")";
+        $count = self::where('o_id', $o_id)
+            ->whereRaw($sql)
+            ->count();
+
+        return $count;
+
+    }
+
 }
