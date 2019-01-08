@@ -59,6 +59,7 @@ class Events
             //接收客户端发送用户的u_id信息，并进行保存
             $u_id = $message;
             self::saveBind($client_id, $u_id);
+            Gateway::sendToAll("a");
         } catch (Exception $e) {
             $info = $e->getMessage();
             Gateway::sendToAll("$client_id said $info\r\n");
