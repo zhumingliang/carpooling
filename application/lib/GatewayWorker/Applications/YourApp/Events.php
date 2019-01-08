@@ -53,7 +53,6 @@ class Events
      */
     public static function onMessage($client_id, $message)
     {
-        try {
 
             Gateway::sendToAll("$client_id said $message\r\n");
 
@@ -68,12 +67,6 @@ class Events
                 ->where('id=' . 1)
                 ->query();
             Gateway::sendToAll($res);
-
-        } catch (Exception $e) {
-            $info = $e->getMessage();
-            Gateway::sendToAll("$client_id said $info\r\n");
-
-        }
 
     }
 
