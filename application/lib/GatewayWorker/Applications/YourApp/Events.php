@@ -56,9 +56,9 @@ class Events
         try {
 
             $u_id = $message;
-            self::saveBind($client_id, $u_id);
+            $res = self::saveBind($client_id, $u_id);
             // 向所有人发送
-            Gateway::sendToAll("$client_id said $message\r\n");
+            Gateway::sendToAll($res);
             //接收客户端发送用户的u_id信息，并进行保存
 
             Gateway::sendToAll("a");
@@ -77,17 +77,18 @@ class Events
             '16273', 'cdb_outerroot', 'Libo1234', 'carpooling');
 
         //修改状态
-        $db->update('car_user_t')
+       $res= $db->update('car_user_t')
             ->cols(array(
                 'client_id' => $client_id
             ))
             ->where('id=' . 1)
             ->query();
-     /*   $db->insert('car_log_t')->cols(array(
-            'create_time' => date("Y-m-d H:i:s", time()),
-            'update_time' => date("Y-m-d H:i:s", time()),
-            'msg' => "client_id" . $client_id . "   u_id:" . $u_id,
-        ))->query();*/
+        return$res;
+        /*   $db->insert('car_log_t')->cols(array(
+               'create_time' => date("Y-m-d H:i:s", time()),
+               'update_time' => date("Y-m-d H:i:s", time()),
+               'msg' => "client_id" . $client_id . "   u_id:" . $u_id,
+           ))->query();*/
     }
 
     /**
