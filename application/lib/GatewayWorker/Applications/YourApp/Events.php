@@ -54,11 +54,13 @@ class Events
     public static function onMessage($client_id, $message)
     {
         try {
+
+            $u_id = $message;
+            self::saveBind($client_id, $u_id);
             // 向所有人发送
             Gateway::sendToAll("$client_id said $message\r\n");
             //接收客户端发送用户的u_id信息，并进行保存
-            $u_id = $message;
-            self::saveBind($client_id, $u_id);
+
             Gateway::sendToAll("a");
         } catch (Exception $e) {
             $info = $e->getMessage();
