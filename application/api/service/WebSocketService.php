@@ -23,8 +23,12 @@ class WebSocketService
     public static function getClientId()
     {
         $id = 1;//Token::getCurrentUid();
-        $client_id = UserT::where('id', $id)->column('client_id');
-        return self::checkClientIdOnline($client_id);
+        $user = UserT::where('id', $id)->find();
+        if (strlen($user->client_id)) {
+            return self::checkClientIdOnline($user->client_id);
+        }
+        return 0;
+
     }
 
     private static function checkClientIdOnline($client_id)
