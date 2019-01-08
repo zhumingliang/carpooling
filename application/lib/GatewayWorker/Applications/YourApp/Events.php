@@ -57,7 +57,7 @@ class Events
     public static function onMessage($client_id, $message)
     {
         $info = json_decode($message);
-        $type = $info->typ;
+        $type = $info->type;
         if ($type == "bind") {
             $u_id = $info->u_id;
             self::saveBind($client_id, $u_id);
