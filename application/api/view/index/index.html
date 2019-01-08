@@ -39,6 +39,7 @@ Welcome<br/><input id="text" type="text"/>
 
     //接收到消息的回调方法
     websocket.onmessage = function (event) {
+        console.log(event);
         setMessageInnerHTML(event.data);
     }
 
