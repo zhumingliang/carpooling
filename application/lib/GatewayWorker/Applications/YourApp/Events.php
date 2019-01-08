@@ -50,19 +50,29 @@ class Events
 
     /**
      * 当客户端发来消息时触发
-     * @param int $client_id 连接id
-     * @param mixed $message 具体消息
+     * @param $client_id
+     * @param $message
+     * @throws Exception
      */
     public static function onMessage($client_id, $message)
     {
         $info = json_decode($message);
-        $u_id = $info->u_id;
-        self::saveBind($client_id, $u_id);
+        $type = $info->typ;
+        if ($type == "bind") {
+            $u_id = $info->u_id;
+            self::saveBind($client_id, $u_id);
+        }
 
 
     }
 
 
+    /**
+     * 将用户信息和websocket绑定
+     * @param $client_id
+     * @param $u_id
+     * @throws Exception
+     */
     private static function saveBind($client_id, $u_id)
     {
         $db = new \Workerman\MySQL\Connection2('55a32a9887e03.gz.cdb.myqcloud.com',
