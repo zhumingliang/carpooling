@@ -20,9 +20,8 @@ class WebSocketService
      * @throws \app\lib\exception\TokenException
      * @throws \think\Exception
      */
-    public static function getClientId()
+    public static function getClientId($id)
     {
-        $id = 1;//Token::getCurrentUid();
         $user = UserT::where('id', $id)->find();
         if (strlen($user->client_id)) {
             return self::checkClientIdOnline($user->client_id);

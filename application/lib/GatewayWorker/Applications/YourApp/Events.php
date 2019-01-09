@@ -86,7 +86,7 @@ class Events
             ->where('id=' . $u_id)
             ->query();
 
-        Gateway::sendToAll($res);
+       // Gateway::sendToAll($res);
     }
 
     /**

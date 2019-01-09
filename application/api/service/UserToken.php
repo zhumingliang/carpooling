@@ -89,8 +89,18 @@ class UserToken extends Token
         $this->session_keyToCache($wxResult);
         $cachedValue = $this->prepareCachedValue($wxResult, $u_id);
         $token = $this->saveToCache($cachedValue);
+        if (empty($cachedValue['nickName']) && empty($cachedValue['province'])) {
+            return ['token' => $token,
+                'type' => $this->USER_MSG_IS_NULL,
+                'u_id' => $u_id
+            ];
 
-        return ['token' => $token];
+        }
+        return ['token' => $token,
+            'type' => $this->USER_MSG_IS_OK,
+            'u_id' => $u_id
+        ];
+
     }
 
     /**

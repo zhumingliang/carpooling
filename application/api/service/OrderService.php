@@ -14,6 +14,7 @@ use app\api\model\OrderT;
 use app\api\model\OrderV;
 use app\lib\exception\OperationException;
 use app\lib\exception\OrderException;
+use app\lib\exception\WebSocketException;
 use GatewayClient\Gateway;
 use think\Db;
 use think\Exception;
@@ -36,10 +37,15 @@ class OrderService
         if (!$res) {
             throw new OperationException();
         }
-        $client_id = "";
+        $u_id = Token::getCurrentUid();
+        $client_id = WebSocketService::getClientId($u_id);
+        if (!$client_id) {
+            throw new WebSocketException();
+        }
         $this->pushWithUser($res->id, $params['count'], $client_id, $params['female'],
             $params['current_latitude'], $params['current_longitude'],
-            $params['dis_latitude'], $params['dis_longitude']);
+            $params['dis_latitude'], $params['dis_longitude'],
+            Token::getCurrentUid(), Token::getCurrentTokenVar('gender'));
 
 
     }
@@ -63,16 +69,16 @@ class OrderService
             'avatarUrl' => Token::getCurrentTokenVar('avatarUrl'),
             'id' => $res->id
         ];
-        $client_id = "";
-        $this->pushToSelecter($client_id, $info);
+        $client_id = WebSocketService::getClientId($this->getOrderUid($params['select_o_id']));
+        $this->pushToClientID($client_id, $info);
 
     }
 
-    public function receiveSelect($id, $type)
+    public function receiveSelect($m_id, $type)
     {
         Db::startTrans();
         try {
-           $res= MatchingT::update(['state' => $type], ['id' => $id]);
+            $res = MatchingT::update(['state' => $type], ['id' => $m_id]);
             if (!$res) {
                 Db::rollback();
                 throw new OperationException(
@@ -84,20 +90,27 @@ class OrderService
                 );
 
             }
-            if ($type==2){
-                $order_res= OrderT::update(['state' => $type], ['id' => $res->o_id]);
+            if ($type == 2) {
+                $order_res = OrderT::update(['state' => $type], ['id' => $res->o_id]);
                 if (!$order_res) {
                     Db::rollback();
                     throw new OperationException(
                         [
                             'code' => 401,
-                            'msg' => '修改状态失败',
+                            'msg' => '修改订单状态失败',
                             'errorCode' => 50004
                         ]
                     );
 
                 }
             }
+            //推送给选择用户
+            $push_info = [
+                'type' => "select",
+                'o_id' => $res->select_o_id
+            ];
+            $client_id = WebSocketService::getClientId($this->getOrderUid($res->o_id));
+            $this->pushToClientID($client_id, $push_info);
             Db::commit();
         } catch (Exception $e) {
             Db::rollback();
@@ -106,7 +119,6 @@ class OrderService
 
 
     }
-
 
     /**
      * 检测被选择用户是否可以被匹配
@@ -143,7 +155,7 @@ class OrderService
      * @param $info
      * @param $client_id
      */
-    private function pushToSelecter($info, $client_id)
+    private function pushToClientID($info, $client_id)
     {
         Gateway::sendToClient($client_id, json_encode($info));
 
@@ -166,10 +178,10 @@ class OrderService
      * @throws \think\exception\DbException
      */
     public function pushWithUser($o_id, $count, $client_id, $female, $current_latitude, $current_longitude,
-                                 $dis_latitude, $dis_longitude)
+                                 $dis_latitude, $dis_longitude, $u_id, $gender)
     {
-        $u_id = Token::getCurrentUid();
-        $gender = Token::getCurrentTokenVar('gender');
+        // $u_id = Token::getCurrentUid();
+        //$gender = Token::getCurrentTokenVar('gender');
         $refuse_ids = MatchingT::getRefuse($o_id);
         $all = OrderV::getReadyList($u_id, $count, $female, $gender, $refuse_ids);
         $pre_order = $this->prefixInfoForDistance($current_latitude, $current_longitude,
@@ -182,7 +194,8 @@ class OrderService
         if (count($pre_order)) {
             Gateway::sendToClient($client_id, json_encode($return_info));
         }
-
+        OrderT::where('id', $o_id)
+            ->inc('push_times')->update();
     }
 
     /**
@@ -243,6 +256,48 @@ class OrderService
         $b = $radLng1 - $radLng2;
         $s = 2 * asin(sqrt(pow(sin($a / 2), 2) + cos($radLat1) * cos($radLat2) * pow(sin($b / 2), 2))) * 6371;
         return round($s, 1);
+
+
+    }
+
+    private function getOrderUid($o_id)
+    {
+        $order = OrderT::get($o_id);
+        return $order->u_id;
+
+    }
+
+    /**
+     *  查找平台订单进行匹配
+     * @throws Exception
+     * @throws \app\lib\exception\TokenException
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function matchingOrder()
+    {
+        //获取所有有效订单：未超过20分钟/未取消/未匹配成功
+        $effective = OrderV::getEffectiveOrder();
+        $this->preEffectiveOrder($effective);
+    }
+
+    /**
+     * @param $orders
+     * @throws Exception
+     * @throws \app\lib\exception\TokenException
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    private function preEffectiveOrder($orders)
+    {
+        foreach ($orders as $k => $v) {
+            if ($v['push_times'] <= 3) {
+                $this->pushWithUser($v['id'], $v['count'], $v['client_id'], $v['female'], $v['current_latitude'], $v['current_longitude'],
+                    $v['dis_latitude'], $v['dis_longitude'], $v['u_id'], $v['gender']);
+            }
+        }
 
 
     }

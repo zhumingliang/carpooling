@@ -25,11 +25,12 @@ class OrderV extends Model
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public static function getReadyList($u_id, $count, $female, $gender,$refuse_ids)
+    public static function getReadyList($u_id, $count, $female, $gender, $refuse_ids)
     {
-        $order_effective_time = config('setting_order_effective_time');
-        $time_end = date("Y-m-d H:i:s");
-        $time_begin = addTime($order_effective_time, $time_end, "minute");
+        $order_effective_time = config('setting.select_effective_time');
+        $time_now = date("Y-m-d H:i:s");
+        $time_end = addTime($order_effective_time, $time_now, "minute");
+        $time_begin = reduceTime($order_effective_time, $time_now, "minute");
         $list = self::where('state', CommonEnum::READY)
             ->where('u_id', '<>', $u_id)
             ->where(function ($query) use ($refuse_ids) {
@@ -53,6 +54,25 @@ class OrderV extends Model
 
                 }
             })
+            ->whereBetweenTime('create_time', $time_begin, $time_end)
+            ->select();
+        return $list;
+
+    }
+
+    /**
+     * 获取有效的订单进行匹配
+     * @return array|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function getEffectiveOrder()
+    {
+        $order_effective_time = config('setting.order_effective_time');
+        $time_end = date("Y-m-d H:i:s");
+        $time_begin = addTime($order_effective_time, $time_end, "minute");
+        $list = self::where('state', CommonEnum::READY)
             ->whereBetweenTime('create_time', $time_begin, $time_end)
             ->select();
         return $list;
