@@ -29,7 +29,7 @@ class OrderV extends Model
     {
         $order_effective_time = config('setting.select_effective_time');
         $time_now = date("Y-m-d H:i:s");
-        $time_end = addTime($order_effective_time, $time_now, "minute");
+        //$time_end = addTime($order_effective_time, $time_now, "minute");
         $time_begin = reduceTime($order_effective_time, $time_now, "minute");
         $list = self::where('state', CommonEnum::READY)
             ->where('u_id', '<>', $u_id)
@@ -54,7 +54,7 @@ class OrderV extends Model
 
                 }
             })
-            ->whereBetweenTime('create_time', $time_begin, $time_end)
+            ->where('create_time', '>', $time_begin)
             ->select();
         return $list;
 

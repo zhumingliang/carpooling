@@ -65,6 +65,27 @@ class Order extends BaseController
     }
 
     /**
+     * @api {GET} /api/v1/order/push/info  7-获取用户推送数据
+     * @apiGroup  MINI
+     * @apiVersion 1.0.1
+     * @apiDescription  后台用户登录
+     * @apiExample {get}  请求样例:
+     * http://test.mengant.cn/api/v1/order/push/info
+     * @return \think\response\Json
+     * @throws \app\lib\exception\TokenException
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function getPush()
+    {
+        $info = (new OrderService())->getPushInfo();
+        return json($info);
+
+    }
+
+    /**
      * @api {POST} /api/v1/select/user  5-选择一个用户并推送拼车消息
      * @apiGroup  CMS
      * @apiVersion 1.0.1
@@ -78,7 +99,6 @@ class Order extends BaseController
      * @apiParam (请求参数说明) {int} o_id 发起者订单id
      * @apiParam (请求参数说明) {int} select_o_id  被选择者订单id
      * @apiParam (请求参数说明) {int} select_u_id   被选择者id
-     *
      * @throws \app\lib\exception\OperationException
      * @throws \app\lib\exception\ParameterException
      * @throws \app\lib\exception\TokenException

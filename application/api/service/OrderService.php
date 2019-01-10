@@ -51,6 +51,29 @@ class OrderService
     }
 
     /**
+     * @return array
+     * @throws Exception
+     * @throws \app\lib\exception\TokenException
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function getPushInfo()
+    {
+        $u_id = Token::getCurrentUid();
+        $info = OrderT::getEffective($u_id);
+        if (!count($info)) {
+            return $info;
+
+        }
+        return $this->returnPushWithUser($info['id'], $info['count'], '', $info['female'],
+            $info['current_latitude'], $info['current_longitude'],
+            $info['dis_latitude'], $info['dis_longitude'],
+            Token::getCurrentUid(), Token::getCurrentTokenVar('gender'));
+
+    }
+
+    /**
      * 用户选择了一个用户
      * @param $params
      * @throws OperationException
@@ -196,6 +219,39 @@ class OrderService
         }
         OrderT::where('id', $o_id)
             ->inc('push_times')->update();
+    }
+
+    /**
+     * @param $o_id
+     * @param $count
+     * @param $client_id
+     * @param $female
+     * @param $current_latitude
+     * @param $current_longitude
+     * @param $dis_latitude
+     * @param $dis_longitude
+     * @param $u_id
+     * @param $gender
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function returnPushWithUser($o_id, $count, $client_id, $female, $current_latitude, $current_longitude,
+                                       $dis_latitude, $dis_longitude, $u_id, $gender)
+    {
+        $refuse_ids = MatchingT::getRefuse($o_id);
+        $all = OrderV::getReadyList($u_id, $count, $female, $gender, $refuse_ids);
+        $pre_order = $this->prefixInfoForDistance($current_latitude, $current_longitude,
+            $dis_latitude, $dis_longitude, $all);
+        $return_info = [
+            'type' => 'push',
+            'o_id' => $o_id,
+            'recommend' => $pre_order
+        ];
+
+        return $return_info;
+
     }
 
     /**
