@@ -9,7 +9,7 @@ class Index
     public function index()
     {
 
-        echo WebSocketService::getClientId();
+      //  echo WebSocketService::getClientId();
         /* $db = new \Workerman\MySQL\Connection('55a32a9887e03.gz.cdb.myqcloud.com',
              '16273', 'cdb_outerroot', 'Libo1234', 'carpooling');
 
