@@ -18,7 +18,7 @@ class Order extends BaseController
 {
     /**
      * @api {POST} /api/v1/order/save  4—用户发起拼车请求
-     * @apiGroup  CMS
+     * @apiGroup  MINI
      * @apiVersion 1.0.1
      * @apiDescription  用户发起拼车请求
      * @apiExample {post}  请求样例:
@@ -44,8 +44,6 @@ class Order extends BaseController
      * {"msg":"ok","errorCode":0}
      * @apiSuccess (返回参数说明) {int} error_code 错误代码 0 表示没有错误
      * @apiSuccess (返回参数说明) {String} msg 操作结果描述
-     *
-     * 用户发送拼车申请
      * @return \think\response\Json
      * @throws \app\lib\exception\OperationException
      * @throws \app\lib\exception\ParameterException
@@ -68,9 +66,9 @@ class Order extends BaseController
      * @api {GET} /api/v1/order/push/info  7-获取用户推送数据
      * @apiGroup  MINI
      * @apiVersion 1.0.1
-     * @apiDescription  后台用户登录
+     * @apiDescription  获取用户推送数据
      * @apiExample {get}  请求样例:
-     * http://test.mengant.cn/api/v1/order/push/info
+     * http://car.mengant.cn/api/v1/order/push/info
      * @return \think\response\Json
      * @throws \app\lib\exception\TokenException
      * @throws \think\Exception
@@ -87,7 +85,7 @@ class Order extends BaseController
 
     /**
      * @api {POST} /api/v1/select/user  5-选择一个用户并推送拼车消息
-     * @apiGroup  CMS
+     * @apiGroup  MINI
      * @apiVersion 1.0.1
      * @apiDescription  发起拼车请求用户选择一个推送用户并推送至被选择用户
      * @apiExample {post}  请求样例:
@@ -114,7 +112,7 @@ class Order extends BaseController
 
     /**
      * @api {POST} /api/v1/select/receive  6—用户接受拼车请求并处理
-     * @apiGroup  CMS
+     * @apiGroup  MINI
      * @apiVersion 1.0.1
      * @apiDescription  用户发起拼车请求
      * @apiExample {post}  请求样例:
@@ -128,8 +126,6 @@ class Order extends BaseController
      * {"msg":"ok","errorCode":0}
      * @apiSuccess (返回参数说明) {int} error_code 错误代码 0 表示没有错误
      * @apiSuccess (返回参数说明) {String} msg 操作结果描述
-     *
-     * 接受被选择用户对于匹配请求的操作
      * @param $m_id
      * @param int $type
      * @return \think\response\Json

@@ -82,7 +82,7 @@ class Token extends Controller
      * @apiVersion 1.0.1
      * @apiDescription  微信用户登录获取token。
      * @apiExample {get}  请求样例:
-     * http://mengant.cn/api/v1/token/user?code=mdksk
+     * http://car.mengant.cn/api/v1/token/user?code=mdksk
      * @apiParam (请求参数说明) {String} code    小程序code
      *
      * @apiSuccessExample {json} 返回样例:
